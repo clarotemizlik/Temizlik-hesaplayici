@@ -231,8 +231,15 @@ button:active {
         <option value="9000">5+1+ (Büyük Villa)</option>
       </select>
 
-      <label>Ek Hizmetler (TL)</label>
-      <input type="number" id="homeExtra" placeholder="Camları yıkama, depo temizliği vs. (opsiyonel)" value="0" min="0">
+      <label>Ek Hizmetler</label>
+      <div style="margin-bottom:15px;">
+        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraBathroom" style="margin-right:8px;"> Ek Banyo (+500 TL)</label>
+        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraRoom" style="margin-right:8px;"> Ek Oda (+400 TL)</label>
+        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraLiving" style="margin-right:8px;"> Ek Salon (+750 TL)</label>
+        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraCam" style="margin-right:8px;"> Cam Temizliği (+400 TL)</label>
+        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraAppliance" style="margin-right:8px;"> Fırın / Beyaz Eşya (+300 TL)</label>
+        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraBalcony" style="margin-right:8px;"> Balkon Temizliği (+150 TL)</label>
+      </div>
 
       <label>Temizlik Sıklığı</label>
       <select id="homeFreq">
@@ -392,34 +399,41 @@ function formatPrice(price) {
 // EV TEMİZLİĞİ
 function calcHome() {
   const base = parseFloat(document.getElementById("homeType").value) || 0;
-  const extra = parseFloat(document.getElementById("homeExtra").value) || 0;
+  // Fixed-price extras (checkboxes only)
+  const extraBathroom = document.getElementById("extraBathroom").checked ? 500 : 0;
+  const extraRoom = document.getElementById("extraRoom").checked ? 400 : 0;
+  const extraLiving = document.getElementById("extraLiving").checked ? 750 : 0;
+  const extraCam = document.getElementById("extraCam").checked ? 400 : 0;
+  const extraAppliance = document.getElementById("extraAppliance").checked ? 300 : 0;
+  const extraBalcony = document.getElementById("extraBalcony").checked ? 150 : 0;
+
+  const extrasTotal = extraBathroom + extraRoom + extraLiving + extraCam + extraAppliance + extraBalcony;
+
   const freqVal = document.getElementById("homeFreq").value;
   let total = 0;
   let details = '';
 
-  // Interpret frequency options:
-  // value "1"  -> Tek seferlik (single visit)
-  // value "0.9" -> Aylık paket: 4 seferde %10 indirim
-  // value "0.8" -> Haftalık paket: haftada 1 (yaklaşık 4.3 sefer/ay) %20 indirim
   if (freqVal === "1") {
     // single visit
-    total = base + extra;
+    total = base + extrasTotal;
     details = `
       <strong>Detaylar:</strong><br>
       Taban Fiyat (Tek Seferlik): ${formatPrice(base)} TL<br>
-      Ek Hizmetler: ${formatPrice(extra)} TL<br>
+      ${extrasTotal > 0 ? `Ek Hizmetler: ${formatPrice(extrasTotal)} TL<br>` : ''}
+      ${getSelectedExtrasList()} 
       <strong>Toplam (Tek Seferlik): ${formatPrice(total)} TL</strong>
     `;
   } else if (freqVal === "0.9") {
     const visits = 4; // aylık 4 sefer
     const discountFactor = 0.9; // %10 indirim
-    total = (base + extra) * visits * discountFactor;
-    const single = base + extra;
+    total = (base + extrasTotal) * visits * discountFactor;
+    const single = base + extrasTotal;
     const discountAmount = Math.round(single * visits - total);
     details = `
       <strong>Detaylar:</strong><br>
       Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
-      Ek Hizmetler (Bir Sefer): ${formatPrice(extra)} TL<br>
+      ${extrasTotal > 0 ? `Ek Hizmetler (Bir Sefer): ${formatPrice(extrasTotal)} TL<br>` : ''}
+      ${getSelectedExtrasList()} 
       Aylık Sefer Sayısı: ${visits} x<br>
       Ara Toplam: ${formatPrice(single * visits)} TL<br>
       <span class="discount-badge">İndirim: ${formatPrice(discountAmount)} TL (%10)</span><br>
@@ -428,14 +442,15 @@ function calcHome() {
   } else if (freqVal === "0.8") {
     const weeksPerMonth = 4.3;
     const discountFactor = 0.8; // %20 indirim
-    total = (base + extra) * weeksPerMonth * discountFactor;
-    const single = base + extra;
+    total = (base + extrasTotal) * weeksPerMonth * discountFactor;
+    const single = base + extrasTotal;
     const subtotal = single * weeksPerMonth;
     const discountAmount = Math.round(subtotal - total);
     details = `
       <strong>Detaylar:</strong><br>
       Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
-      Ek Hizmetler (Bir Sefer): ${formatPrice(extra)} TL<br>
+      ${extrasTotal > 0 ? `Ek Hizmetler (Bir Sefer): ${formatPrice(extrasTotal)} TL<br>` : ''}
+      ${getSelectedExtrasList()} 
       Tahmini Aylık Sefer (haftalık plan ≈): ${weeksPerMonth} x<br>
       Ara Toplam: ${formatPrice(subtotal)} TL<br>
       <span class="discount-badge">İndirim: ${formatPrice(discountAmount)} TL (%20)</span><br>
@@ -444,6 +459,17 @@ function calcHome() {
   }
 
   showResult("homeResult", total, details);
+}
+
+function getSelectedExtrasList() {
+  const items = [];
+  if (document.getElementById("extraBathroom").checked) items.push(`Ek Banyo: ${formatPrice(500)} TL`);
+  if (document.getElementById("extraRoom").checked) items.push(`Ek Oda: ${formatPrice(400)} TL`);
+  if (document.getElementById("extraLiving").checked) items.push(`Ek Salon: ${formatPrice(750)} TL`);
+  if (document.getElementById("extraCam").checked) items.push(`Cam Temizliği: ${formatPrice(400)} TL`);
+  if (document.getElementById("extraAppliance").checked) items.push(`Fırın / Beyaz Eşya: ${formatPrice(300)} TL`);
+  if (document.getElementById("extraBalcony").checked) items.push(`Balkon Temizliği: ${formatPrice(150)} TL`);
+  return items.length > 0 ? items.join('<br>') + '<br>' : '';
 }
 
 // APARTMAN TEMİZLİĞİ
