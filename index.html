@@ -384,83 +384,142 @@ function showResult(elementId, price, details = "") {
 
 // Fiyat formatla
 function formatPrice(price) {
-  return Math.round(price).toLocaleString("tr-TR");
+  // Ensure numeric and round to whole TL for display
+  const n = Number(price) || 0;
+  return Math.round(n).toLocaleString("tr-TR");
 }
 
 // EV TEMİZLİĞİ
 function calcHome() {
-  let base = parseInt(document.getElementById("homeType").value);
-  let extra = parseInt(document.getElementById("homeExtra").value) || 0;
-  let freq = parseFloat(document.getElementById("homeFreq").value);
-  
-  let total = (base + extra) * freq;
-  
-  let details = `
-    <strong>Detaylar:</strong><br>
-    Taban Fiyat: ${formatPrice(base)} TL<br>
-    Ek Hizmetler: ${formatPrice(extra)} TL<br>
-    Toplam: ${formatPrice(base + extra)} TL
-  `;
-  
-  if (freq < 1) {
-    const discount = Math.round((base + extra) * (1 - freq));
-    details += `<br><span class="discount-badge">İndirim: ${discount} TL (%${Math.round((1 - freq) * 100)})</span>`;
+  const base = parseFloat(document.getElementById("homeType").value) || 0;
+  const extra = parseFloat(document.getElementById("homeExtra").value) || 0;
+  const freqVal = document.getElementById("homeFreq").value;
+  let total = 0;
+  let details = '';
+
+  // Interpret frequency options:
+  // value "1"  -> Tek seferlik (single visit)
+  // value "0.9" -> Aylık paket: 4 seferde %10 indirim
+  // value "0.8" -> Haftalık paket: haftada 1 (yaklaşık 4.3 sefer/ay) %20 indirim
+  if (freqVal === "1") {
+    // single visit
+    total = base + extra;
+    details = `
+      <strong>Detaylar:</strong><br>
+      Taban Fiyat (Tek Seferlik): ${formatPrice(base)} TL<br>
+      Ek Hizmetler: ${formatPrice(extra)} TL<br>
+      <strong>Toplam (Tek Seferlik): ${formatPrice(total)} TL</strong>
+    `;
+  } else if (freqVal === "0.9") {
+    const visits = 4; // aylık 4 sefer
+    const discountFactor = 0.9; // %10 indirim
+    total = (base + extra) * visits * discountFactor;
+    const single = base + extra;
+    const discountAmount = Math.round(single * visits - total);
+    details = `
+      <strong>Detaylar:</strong><br>
+      Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
+      Ek Hizmetler (Bir Sefer): ${formatPrice(extra)} TL<br>
+      Aylık Sefer Sayısı: ${visits} x<br>
+      Ara Toplam: ${formatPrice(single * visits)} TL<br>
+      <span class="discount-badge">İndirim: ${formatPrice(discountAmount)} TL (%10)</span><br>
+      <strong>Aylık Toplam: ${formatPrice(total)} TL</strong>
+    `;
+  } else if (freqVal === "0.8") {
+    const weeksPerMonth = 4.3;
+    const discountFactor = 0.8; // %20 indirim
+    total = (base + extra) * weeksPerMonth * discountFactor;
+    const single = base + extra;
+    const subtotal = single * weeksPerMonth;
+    const discountAmount = Math.round(subtotal - total);
+    details = `
+      <strong>Detaylar:</strong><br>
+      Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
+      Ek Hizmetler (Bir Sefer): ${formatPrice(extra)} TL<br>
+      Tahmini Aylık Sefer (haftalık plan ≈): ${weeksPerMonth} x<br>
+      Ara Toplam: ${formatPrice(subtotal)} TL<br>
+      <span class="discount-badge">İndirim: ${formatPrice(discountAmount)} TL (%20)</span><br>
+      <strong>Aylık Toplam: ${formatPrice(total)} TL</strong>
+    `;
   }
-  
+
   showResult("homeResult", total, details);
 }
 
 // APARTMAN TEMİZLİĞİ
 function calcBuilding() {
-  let floor = parseInt(document.getElementById("floor").value) || 0;
-  let elevator = parseInt(document.getElementById("elevator").value);
-  let freq = parseFloat(document.getElementById("freq").value);
-  
+  const floor = parseInt(document.getElementById("floor").value) || 0;
+  const elevator = parseInt(document.getElementById("elevator").value) || 0;
+  const freqSelect = document.getElementById("freq");
+  const freqIndex = freqSelect.selectedIndex;
+
   if (floor <= 0) {
     alert("Lütfen geçerli bir kat sayısı girin!");
     return;
   }
-  
-  let base = 1000 + (floor * 175) + elevator;
-  let total = base * freq;
-  
-  let details = `
+
+  // base is price for one visit
+  const base = 1000 + (floor * 175) + elevator;
+
+  // Map frequency option index to visits per month
+  // 0: Ayda 1 -> 1
+  // 1: Ayda 2 -> 2
+  // 2: Haftada 1 -> ~4.3
+  // 3: Haftada 1.5 -> ~4.3 * 1.5
+  const weeksPerMonth = 4.3;
+  const visitsPerMonthMap = [1, 2, weeksPerMonth, weeksPerMonth * 1.5];
+  const visitsPerMonth = visitsPerMonthMap[freqIndex] || 1;
+
+  const monthlyTotal = base * visitsPerMonth;
+
+  const details = `
     <strong>Detaylar:</strong><br>
-    Taban Fiyat: 1.000 TL<br>
+    Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
     Kat Ücreti (${floor}×175): ${formatPrice(floor * 175)} TL<br>
     Asansör: ${elevator > 0 ? formatPrice(elevator) + " TL" : "Yok"}<br>
-    Bir Defaya Ait Fiyat: ${formatPrice(base)} TL<br>
-    Sıklık Çarpanı: ${freq}x<br>
-    <strong>Aylık Toplam: ${formatPrice(total)} TL</strong>
+    Aylık Sefer Sayısı: ${Number.isInteger(visitsPerMonth) ? visitsPerMonth : visitsPerMonth.toFixed(1)} x<br>
+    <strong>Aylık Toplam: ${formatPrice(monthlyTotal)} TL</strong>
   `;
-  
-  showResult("buildingResult", total, details);
+
+  showResult("buildingResult", monthlyTotal, details);
 }
 
 // OFİS TEMİZLİĞİ
 function calcOffice() {
-  let m2 = parseInt(document.getElementById("m2").value) || 0;
-  let rate = parseInt(document.getElementById("density").value);
-  let freq = parseFloat(document.getElementById("officeFreq").value);
-  
+  const m2 = parseInt(document.getElementById("m2").value) || 0;
+  const rate = parseFloat(document.getElementById("density").value) || 0;
+  const freqSelect = document.getElementById("officeFreq");
+  const freqIndex = freqSelect.selectedIndex;
+
   if (m2 <= 0) {
     alert("Lütfen geçerli bir alan girin!");
     return;
   }
-  
-  let perWeek = m2 * rate;
-  let total = perWeek * freq;
-  
-  let details = `
+
+  // perVisit = cost for one cleaning visit
+  const perVisit = m2 * rate;
+
+  // Map frequency to visits per week:
+  // 0: Haftada 1 -> 1
+  // 1: Haftada 2 -> 2
+  // 2: Günlük (Pazartesi-Cuma) -> 5
+  const visitsPerWeekMap = [1, 2, 5];
+  const visitsPerWeek = visitsPerWeekMap[freqIndex] || 1;
+
+  const weeklyCost = perVisit * visitsPerWeek;
+  const monthlyCost = weeklyCost * 4.3; // average weeks per month
+
+  const details = `
     <strong>Detaylar:</strong><br>
     Alan: ${m2} m²<br>
-    Birim Fiyat: ${rate} TL/m²<br>
-    Haftalık Tahmini: ${formatPrice(perWeek)} TL<br>
-    Sıklık: ${freq}x/hafta<br>
-    <strong>Aylık Tahmini: ${formatPrice(total * 4.3)} TL</strong>
+    Birim Fiyat: ${formatPrice(rate)} TL/m²<br>
+    Bir Ziyaret İçin Tahmini: ${formatPrice(perVisit)} TL<br>
+    Haftalık Ziyaret Sayısı: ${visitsPerWeek} x<br>
+    Haftalık Tahmini: ${formatPrice(weeklyCost)} TL<br>
+    <strong>Aylık Tahmini: ${formatPrice(monthlyCost)} TL</strong>
   `;
-  
-  showResult("officeResult", total * 4.3, details);
+
+  showResult("officeResult", monthlyCost, details);
 }
 
 // İNŞAAT SONRASI
@@ -488,7 +547,7 @@ function calcReno() {
   
   let details = `
     <strong>Detaylar:</strong><br>
-    Taban (${m2}m² × ${rate} TL): ${formatPrice(basePrice)} TL<br>
+    Taban (${m2}m² × ${formatPrice(rate)} TL): ${formatPrice(basePrice)} TL<br>
     ${extras.length > 0 ? extras.join("<br>") + "<br>" : ""}
     <strong>Toplam: ${formatPrice(total)} TL</strong>
   `;
