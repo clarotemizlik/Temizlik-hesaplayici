@@ -216,6 +216,30 @@ button:active {
   font-size: 12px;
   color: #999;
 }
+
+.whatsapp-button {
+  background: #25D366 !important;
+  color: white;
+  padding: 15px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: block;
+}
+
+.whatsapp-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+}
+
+.whatsapp-button:active {
+  transform: translateY(0);
+}
 </style>
 </head>
 <body>
@@ -272,6 +296,7 @@ button:active {
 
       <button onclick="calcHome()">Hesapla</button>
       <div class="result" id="homeResult"></div>
+      <button class="whatsapp-button" onclick="sendWhatsApp('home')">📲 WhatsApp'tan Teklif Al</button>
     </div>
 
     <!-- APARTMAN TEMİZLİĞİ -->
@@ -300,6 +325,7 @@ button:active {
 
       <button onclick="calcBuilding()">Hesapla</button>
       <div class="result" id="buildingResult"></div>
+      <button class="whatsapp-button" onclick="sendWhatsApp('building')">📲 WhatsApp'tan Teklif Al</button>
     </div>
 
     <!-- OFİS TEMİZLİĞİ -->
@@ -328,6 +354,7 @@ button:active {
 
       <button onclick="calcOffice()">Hesapla</button>
       <div class="result" id="officeResult"></div>
+      <button class="whatsapp-button" onclick="sendWhatsApp('office')">📲 WhatsApp'tan Teklif Al</button>
     </div>
 
     <!-- İNŞAAT SONRASI -->
@@ -380,6 +407,7 @@ button:active {
 
       <button onclick="calcReno()">Hesapla</button>
       <div class="result" id="renoResult"></div>
+      <button class="whatsapp-button" onclick="sendWhatsApp('renovation')">📲 WhatsApp'tan Teklif Al</button>
     </div>
   </div>
 
@@ -416,6 +444,71 @@ function formatPrice(price) {
   // Ensure numeric and round to whole TL for display
   const n = Number(price) || 0;
   return Math.round(n).toLocaleString("tr-TR");
+}
+
+// WhatsApp'a mesaj gönder
+function sendWhatsApp(serviceType) {
+  let price = "";
+  let message = "";
+
+  if (serviceType === "home") {
+    const homeType = document.getElementById("homeType");
+    const homeTypeLabel = homeType.options[homeType.selectedIndex].text;
+    const homeFreq = document.getElementById("homeFreq");
+    const homeFreqLabel = homeFreq.options[homeFreq.selectedIndex].text;
+    const resultDiv = document.getElementById("homeResult");
+    const priceElement = resultDiv.querySelector(".result-price");
+    
+    if (priceElement) {
+      price = priceElement.textContent;
+      message = `Merhaba! 🏠 Ev Temizliği hizmeti için teklif almak istiyorum:\n\n- Ev Tipi: ${homeTypeLabel}\n- Sıklık: ${homeFreqLabel}\n- Tahmini Fiyat: ${price} TL\n\nLütfen bana ulaşabilir misiniz?`;
+    }
+  } else if (serviceType === "building") {
+    const floor = document.getElementById("floor").value;
+    const elevator = document.getElementById("elevator");
+    const elevatorLabel = elevator.options[elevator.selectedIndex].text;
+    const resultDiv = document.getElementById("buildingResult");
+    const priceElement = resultDiv.querySelector(".result-price");
+    
+    if (priceElement) {
+      price = priceElement.textContent;
+      message = `Merhaba! 🏢 Apartman Temizliği hizmeti için teklif almak istiyorum:\n\n- Kat Sayısı: ${floor}\n- Asansör: ${elevatorLabel}\n- Tahmini Aylık Fiyat: ${price} TL\n\nLütfen bana ulaşabilir misiniz?`;
+    }
+  } else if (serviceType === "office") {
+    const m2 = document.getElementById("m2").value;
+    const density = document.getElementById("density");
+    const densityLabel = density.options[density.selectedIndex].text;
+    const resultDiv = document.getElementById("officeResult");
+    const priceElement = resultDiv.querySelector(".result-price");
+    
+    if (priceElement) {
+      price = priceElement.textContent;
+      message = `Merhaba! 💼 Ofis Temizliği hizmeti için teklif almak istiyorum:\n\n- Alan: ${m2} m²\n- Yoğunluk: ${densityLabel}\n- Tahmini Aylık Fiyat: ${price} TL\n\nLütfen bana ulaşabilir misiniz?`;
+    }
+  } else if (serviceType === "renovation") {
+    const rm2 = document.getElementById("rm2").value;
+    const level = document.getElementById("level");
+    const levelLabel = level.options[level.selectedIndex].text;
+    const resultDiv = document.getElementById("renoResult");
+    const priceElement = resultDiv.querySelector(".result-price");
+    
+    if (priceElement) {
+      price = priceElement.textContent;
+      message = `Merhaba! 🏗️ İnşaat Sonrası Temizlik hizmeti için teklif almak istiyorum:\n\n- Alan: ${rm2} m²\n- Zorluk Seviyesi: ${levelLabel}\n- Tahmini Fiyat: ${price} TL\n\nLütfen bana ulaşabilir misiniz?`;
+    }
+  }
+
+  if (message) {
+    // WhatsApp Web URL'si (Türkiye numarası örneği - kendi numaranızla değiştirin)
+    // Format: https://wa.me/90XXXXXXXXXX (90 = Türkiye kodu, sonra ön sıfır olmadan numara)
+    const phoneNumber = "905XXXXXXXXXX"; // Buraya kendi WhatsApp numaranızı girin
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    
+    window.open(whatsappUrl, "_blank");
+  } else {
+    alert("Lütfen önce fiyat hesaplamasını yapınız!");
+  }
 }
 
 // EV TEMİZLİĞİ
