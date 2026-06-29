@@ -499,9 +499,8 @@ function sendWhatsApp(serviceType) {
   }
 
   if (message) {
-    // WhatsApp Web URL'si (Türkiye numarası örneği - kendi numaranızla değiştirin)
-    // Format: https://wa.me/90XXXXXXXXXX (90 = Türkiye kodu, sonra ön sıfır olmadan numara)
-    const phoneNumber = "905XXXXXXXXXX"; // Buraya kendi WhatsApp numaranızı girin
+    // WhatsApp Web URL'si
+    const phoneNumber = "905352866434";
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
     
