@@ -181,10 +181,32 @@ button:active {
   gap: 15px;
 }
 
+/* NEW: extras line for Home module - single row, symmetric */
+.extras-line {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: nowrap; /* keep in a single line */
+  overflow-x: auto; /* allow horizontal scroll on small screens */
+  padding: 6px 2px 12px 2px;
+  margin-bottom: 15px;
+}
+.extras-line label {
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: #333;
+  font-size: 14px;
+}
+
 @media (max-width: 600px) {
   .section-group {
     grid-template-columns: 1fr;
   }
+  /* On very small screens allow wrapping to avoid layout break */
+  .extras-line { flex-wrap: wrap; gap: 12px; }
 }
 
 .footer {
@@ -232,13 +254,13 @@ button:active {
       </select>
 
       <label>Ek Hizmetler</label>
-      <div style="margin-bottom:15px;">
-        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraBathroom" style="margin-right:8px;"> Ek Banyo (+500 TL)</label>
-        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraRoom" style="margin-right:8px;"> Ek Oda (+400 TL)</label>
-        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraLiving" style="margin-right:8px;"> Ek Salon (+750 TL)</label>
-        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraCam" style="margin-right:8px;"> Cam Temizliği (+400 TL)</label>
-        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraAppliance" style="margin-right:8px;"> Fırın / Beyaz Eşya (+300 TL)</label>
-        <label style="font-weight:500; display:flex; align-items:center;"><input type="checkbox" id="extraBalcony" style="margin-right:8px;"> Balkon Temizliği (+150 TL)</label>
+      <div class="extras-line" aria-label="Ek Hizmetler">
+        <label><input type="checkbox" id="extraBathroom"> Ek Banyo (+500 TL)</label>
+        <label><input type="checkbox" id="extraRoom"> Ek Oda (+400 TL)</label>
+        <label><input type="checkbox" id="extraLiving"> Ek Salon (+750 TL)</label>
+        <label><input type="checkbox" id="extraCam"> Cam Temizliği (+400 TL)</label>
+        <label><input type="checkbox" id="extraAppliance"> Fırın / Beyaz Eşya (+300 TL)</label>
+        <label><input type="checkbox" id="extraBalcony"> Balkon Temizliği (+150 TL)</label>
       </div>
 
       <label>Temizlik Sıklığı</label>
