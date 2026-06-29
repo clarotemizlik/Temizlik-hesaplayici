@@ -197,16 +197,16 @@ button:active {
   gap: 15px;
 }
 
-/* NEW: extras line for Home module - single row, symmetric */
 .extras-line {
   display: flex;
   gap: 18px;
   align-items: center;
-  flex-wrap: nowrap; /* keep in a single line */
-  overflow-x: auto; /* allow horizontal scroll on small screens */
+  flex-wrap: nowrap;
+  overflow-x: auto;
   padding: 6px 2px 12px 2px;
   margin-bottom: 15px;
 }
+
 .extras-line label {
   font-weight: 500;
   display: inline-flex;
@@ -221,7 +221,6 @@ button:active {
   .section-group {
     grid-template-columns: 1fr;
   }
-  /* On very small screens allow wrapping to avoid layout break */
   .extras-line { flex-wrap: wrap; gap: 12px; }
 }
 
@@ -457,36 +456,35 @@ button:active {
 </div>
 
 <script>
-// Hizmet türü değiştiğinde kutuyu göster
 function showBox() {
   let v = document.getElementById("service").value;
-  document.querySelectorAll(".box").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".box").forEach(function(b) {
+    b.classList.remove("active");
+  });
   
-  if (v === "home") document.getElementById("homeBox").classList.add("active");
-  else if (v === "building") document.getElementById("buildingBox").classList.add("active");
-  else if (v === "office") document.getElementById("officeBox").classList.add("active");
-  else if (v === "renovation") document.getElementById("renoBox").classList.add("active");
+  if (v === "home") {
+    document.getElementById("homeBox").classList.add("active");
+  } else if (v === "building") {
+    document.getElementById("buildingBox").classList.add("active");
+  } else if (v === "office") {
+    document.getElementById("officeBox").classList.add("active");
+  } else if (v === "renovation") {
+    document.getElementById("renoBox").classList.add("active");
+  }
 }
 
-// Sonucu göster
-function showResult(elementId, price, details = "") {
+function showResult(elementId, price, details) {
+  if (details === undefined) details = "";
   const resultDiv = document.getElementById(elementId);
-  resultDiv.innerHTML = `
-    <div class="result-label">Hesaplanan Fiyat:</div>
-    <div class="result-price">${formatPrice(price)} TL</div>
-    ${details ? `<div class="result-details">${details}</div>` : ""}
-  `;
+  resultDiv.innerHTML = '<div class="result-label">Hesaplanan Fiyat:</div><div class="result-price">' + formatPrice(price) + ' TL</div>' + (details ? '<div class="result-details">' + details + '</div>' : "");
   resultDiv.classList.add("show");
 }
 
-// Fiyat formatla
 function formatPrice(price) {
-  // Ensure numeric and round to whole TL for display
   const n = Number(price) || 0;
   return Math.round(n).toLocaleString("tr-TR");
 }
 
-// WhatsApp'a mesaj gönder
 function sendWhatsApp(serviceType) {
   let price = "";
   let message = "";
@@ -501,7 +499,7 @@ function sendWhatsApp(serviceType) {
     
     if (priceElement) {
       price = priceElement.textContent;
-      message = `Merhaba! 🏠 Ev Temizliği hizmeti için teklif almak istiyorum:\n\n- Ev Tipi: ${homeTypeLabel}\n- Sıklık: ${homeFreqLabel}\n- Tahmini Fiyat: ${price} TL\n\nLütfen bana ulaş[...]
+      message = "Merhaba! 🏠 Ev Temizliği hizmeti için teklif almak istiyorum:\n\n- Ev Tipi: " + homeTypeLabel + "\n- Sıklık: " + homeFreqLabel + "\n- Tahmini Fiyat: " + price + " TL\n\nLütfen bana ulaşınız.";
     }
   } else if (serviceType === "building") {
     const floor = document.getElementById("floor").value;
@@ -512,7 +510,7 @@ function sendWhatsApp(serviceType) {
     
     if (priceElement) {
       price = priceElement.textContent;
-      message = `Merhaba! 🏢 Apartman Temizliği hizmeti için teklif almak istiyorum:\n\n- Kat Sayısı: ${floor}\n- Asansör: ${elevatorLabel}\n- Tahmini Aylık Fiyat: ${price} TL\n\nLütfen [...]
+      message = "Merhaba! 🏢 Apartman Temizliği hizmeti için teklif almak istiyorum:\n\n- Kat Sayısı: " + floor + "\n- Asansör: " + elevatorLabel + "\n- Tahmini Aylık Fiyat: " + price + " TL\n\nLütfen bana ulaşınız.";
     }
   } else if (serviceType === "office") {
     const m2 = document.getElementById("m2").value;
@@ -523,7 +521,7 @@ function sendWhatsApp(serviceType) {
     
     if (priceElement) {
       price = priceElement.textContent;
-      message = `Merhaba! 💼 Ofis Temizliği hizmeti için teklif almak istiyorum:\n\n- Alan: ${m2} m²\n- Yoğunluk: ${densityLabel}\n- Tahmini Aylık Fiyat: ${price} TL\n\nLütfen bana ulaşa[...]
+      message = "Merhaba! 💼 Ofis Temizliği hizmeti için teklif almak istiyorum:\n\n- Alan: " + m2 + " m²\n- Yoğunluk: " + densityLabel + "\n- Tahmini Aylık Fiyat: " + price + " TL\n\nLütfen bana ulaşınız.";
     }
   } else if (serviceType === "renovation") {
     const rm2 = document.getElementById("rm2").value;
@@ -534,26 +532,22 @@ function sendWhatsApp(serviceType) {
     
     if (priceElement) {
       price = priceElement.textContent;
-      message = `Merhaba! 🏗️ İnşaat Sonrası Temizlik hizmeti için teklif almak istiyorum:\n\n- Alan: ${rm2} m²\n- Zorluk Seviyesi: ${levelLabel}\n- Tahmini Fiyat: ${price} TL\n\nLütfen[...]
+      message = "Merhaba! 🏗️ İnşaat Sonrası Temizlik hizmeti için teklif almak istiyorum:\n\n- Alan: " + rm2 + " m²\n- Zorluk Seviyesi: " + levelLabel + "\n- Tahmini Fiyat: " + price + " TL\n\nLütfen bana ulaşınız.";
     }
   }
 
   if (message) {
-    // WhatsApp Web URL'si
     const phoneNumber = "905352866434";
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-    
+    const whatsappUrl = "https://wa.me/" + phoneNumber + "?text=" + encodedMessage;
     window.open(whatsappUrl, "_blank");
   } else {
     alert("Lütfen önce fiyat hesaplamasını yapınız!");
   }
 }
 
-// EV TEMİZLİĞİ
 function calcHome() {
   const base = parseFloat(document.getElementById("homeType").value) || 0;
-  // Fixed-price extras (checkboxes only)
   const extraBathroom = document.getElementById("extraBathroom").checked ? 500 : 0;
   const extraRoom = document.getElementById("extraRoom").checked ? 400 : 0;
   const extraLiving = document.getElementById("extraLiving").checked ? 750 : 0;
@@ -562,54 +556,28 @@ function calcHome() {
   const extraBalcony = document.getElementById("extraBalcony").checked ? 150 : 0;
 
   const extrasTotal = extraBathroom + extraRoom + extraLiving + extraCam + extraAppliance + extraBalcony;
-
   const freqVal = document.getElementById("homeFreq").value;
   let total = 0;
   let details = '';
 
   if (freqVal === "1") {
-    // single visit
     total = base + extrasTotal;
-    details = `
-      <strong>Detaylar:</strong><br>
-      Taban Fiyat (Tek Seferlik): ${formatPrice(base)} TL<br>
-      ${extrasTotal > 0 ? `Ek Hizmetler: ${formatPrice(extrasTotal)} TL<br>` : ''}
-      ${getSelectedExtrasList()} 
-      <strong>Toplam (Tek Seferlik): ${formatPrice(total)} TL</strong>
-    `;
+    details = "<strong>Detaylar:</strong><br>Taban Fiyat (Tek Seferlik): " + formatPrice(base) + " TL<br>" + (extrasTotal > 0 ? "Ek Hizmetler: " + formatPrice(extrasTotal) + " TL<br>" : "") + getSelectedExtrasList() + "<strong>Toplam (Tek Seferlik): " + formatPrice(total) + " TL</strong>";
   } else if (freqVal === "0.9") {
-    const visits = 4; // aylık 4 sefer
-    const discountFactor = 0.9; // %10 indirim
+    const visits = 4;
+    const discountFactor = 0.9;
     total = (base + extrasTotal) * visits * discountFactor;
     const single = base + extrasTotal;
     const discountAmount = Math.round(single * visits - total);
-    details = `
-      <strong>Detaylar:</strong><br>
-      Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
-      ${extrasTotal > 0 ? `Ek Hizmetler (Bir Sefer): ${formatPrice(extrasTotal)} TL<br>` : ''}
-      ${getSelectedExtrasList()} 
-      Aylık Sefer Sayısı: ${visits} x<br>
-      Ara Toplam: ${formatPrice(single * visits)} TL<br>
-      <span class="discount-badge">İndirim: ${formatPrice(discountAmount)} TL (%10)</span><br>
-      <strong>Aylık Toplam: ${formatPrice(total)} TL</strong>
-    `;
+    details = "<strong>Detaylar:</strong><br>Taban Fiyat (Bir Sefer): " + formatPrice(base) + " TL<br>" + (extrasTotal > 0 ? "Ek Hizmetler (Bir Sefer): " + formatPrice(extrasTotal) + " TL<br>" : "") + getSelectedExtrasList() + "Aylık Sefer Sayısı: " + visits + " x<br>Ara Toplam: " + formatPrice(single * visits) + " TL<br><span class=\"discount-badge\">İndirim: " + formatPrice(discountAmount) + " TL (%10)</span><br><strong>Aylık Toplam: " + formatPrice(total) + " TL</strong>";
   } else if (freqVal === "0.8") {
     const weeksPerMonth = 4.3;
-    const discountFactor = 0.8; // %20 indirim
+    const discountFactor = 0.8;
     total = (base + extrasTotal) * weeksPerMonth * discountFactor;
     const single = base + extrasTotal;
     const subtotal = single * weeksPerMonth;
     const discountAmount = Math.round(subtotal - total);
-    details = `
-      <strong>Detaylar:</strong><br>
-      Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
-      ${extrasTotal > 0 ? `Ek Hizmetler (Bir Sefer): ${formatPrice(extrasTotal)} TL<br>` : ''}
-      ${getSelectedExtrasList()} 
-      Tahmini Aylık Sefer (haftalık plan ≈): ${weeksPerMonth} x<br>
-      Ara Toplam: ${formatPrice(subtotal)} TL<br>
-      <span class="discount-badge">İndirim: ${formatPrice(discountAmount)} TL (%20)</span><br>
-      <strong>Aylık Toplam: ${formatPrice(total)} TL</strong>
-    `;
+    details = "<strong>Detaylar:</strong><br>Taban Fiyat (Bir Sefer): " + formatPrice(base) + " TL<br>" + (extrasTotal > 0 ? "Ek Hizmetler (Bir Sefer): " + formatPrice(extrasTotal) + " TL<br>" : "") + getSelectedExtrasList() + "Tahmini Aylık Sefer (haftalık plan ≈): " + weeksPerMonth + " x<br>Ara Toplam: " + formatPrice(subtotal) + " TL<br><span class=\"discount-badge\">İndirim: " + formatPrice(discountAmount) + " TL (%20)</span><br><strong>Aylık Toplam: " + formatPrice(total) + " TL</strong>";
   }
 
   showResult("homeResult", total, details);
@@ -617,16 +585,15 @@ function calcHome() {
 
 function getSelectedExtrasList() {
   const items = [];
-  if (document.getElementById("extraBathroom").checked) items.push(`Ek Banyo: ${formatPrice(500)} TL`);
-  if (document.getElementById("extraRoom").checked) items.push(`Ek Oda: ${formatPrice(400)} TL`);
-  if (document.getElementById("extraLiving").checked) items.push(`Ek Salon: ${formatPrice(750)} TL`);
-  if (document.getElementById("extraCam").checked) items.push(`Cam Temizliği: ${formatPrice(400)} TL`);
-  if (document.getElementById("extraAppliance").checked) items.push(`Fırın / Beyaz Eşya: ${formatPrice(300)} TL`);
-  if (document.getElementById("extraBalcony").checked) items.push(`Balkon Temizliği: ${formatPrice(150)} TL`);
+  if (document.getElementById("extraBathroom").checked) items.push("Ek Banyo: " + formatPrice(500) + " TL");
+  if (document.getElementById("extraRoom").checked) items.push("Ek Oda: " + formatPrice(400) + " TL");
+  if (document.getElementById("extraLiving").checked) items.push("Ek Salon: " + formatPrice(750) + " TL");
+  if (document.getElementById("extraCam").checked) items.push("Cam Temizliği: " + formatPrice(400) + " TL");
+  if (document.getElementById("extraAppliance").checked) items.push("Fırın / Beyaz Eşya: " + formatPrice(300) + " TL");
+  if (document.getElementById("extraBalcony").checked) items.push("Balkon Temizliği: " + formatPrice(150) + " TL");
   return items.length > 0 ? items.join('<br>') + '<br>' : '';
 }
 
-// APARTMAN TEMİZLİĞİ
 function calcBuilding() {
   const floor = parseInt(document.getElementById("floor").value) || 0;
   const elevator = parseInt(document.getElementById("elevator").value) || 0;
@@ -638,33 +605,17 @@ function calcBuilding() {
     return;
   }
 
-  // base is price for one visit
   const base = 1000 + (floor * 175) + elevator;
-
-  // Map frequency option index to visits per month
-  // 0: Ayda 1 -> 1
-  // 1: Ayda 2 -> 2
-  // 2: Haftada 1 -> ~4.3
-  // 3: Haftada 1.5 -> ~4.3 * 1.5
   const weeksPerMonth = 4.3;
   const visitsPerMonthMap = [1, 2, weeksPerMonth, weeksPerMonth * 1.5];
   const visitsPerMonth = visitsPerMonthMap[freqIndex] || 1;
-
   const monthlyTotal = base * visitsPerMonth;
 
-  const details = `
-    <strong>Detaylar:</strong><br>
-    Taban Fiyat (Bir Sefer): ${formatPrice(base)} TL<br>
-    Kat Ücreti (${floor}×175): ${formatPrice(floor * 175)} TL<br>
-    Asansör: ${elevator > 0 ? formatPrice(elevator) + " TL" : "Yok"}<br>
-    Aylık Sefer Sayısı: ${Number.isInteger(visitsPerMonth) ? visitsPerMonth : visitsPerMonth.toFixed(1)} x<br>
-    <strong>Aylık Toplam: ${formatPrice(monthlyTotal)} TL</strong>
-  `;
+  const details = "<strong>Detaylar:</strong><br>Taban Fiyat (Bir Sefer): " + formatPrice(base) + " TL<br>Kat Ücreti (" + floor + "×175): " + formatPrice(floor * 175) + " TL<br>Asansör: " + (elevator > 0 ? formatPrice(elevator) + " TL" : "Yok") + "<br>Aylık Sefer Sayısı: " + (Number.isInteger(visitsPerMonth) ? visitsPerMonth : visitsPerMonth.toFixed(1)) + " x<br><strong>Aylık Toplam: " + formatPrice(monthlyTotal) + " TL</strong>";
 
   showResult("buildingResult", monthlyTotal, details);
 }
 
-// OFİS TEMİZLİĞİ
 function calcOffice() {
   const m2 = parseInt(document.getElementById("m2").value) || 0;
   const rate = parseFloat(document.getElementById("density").value) || 0;
@@ -676,33 +627,17 @@ function calcOffice() {
     return;
   }
 
-  // perVisit = cost for one cleaning visit
   const perVisit = m2 * rate;
-
-  // Map frequency to visits per week:
-  // 0: Haftada 1 -> 1
-  // 1: Haftada 2 -> 2
-  // 2: Günlük (Pazartesi-Cuma) -> 5
   const visitsPerWeekMap = [1, 2, 5];
   const visitsPerWeek = visitsPerWeekMap[freqIndex] || 1;
-
   const weeklyCost = perVisit * visitsPerWeek;
-  const monthlyCost = weeklyCost * 4.3; // average weeks per month
+  const monthlyCost = weeklyCost * 4.3;
 
-  const details = `
-    <strong>Detaylar:</strong><br>
-    Alan: ${m2} m²<br>
-    Birim Fiyat: ${formatPrice(rate)} TL/m²<br>
-    Bir Ziyaret İçin Tahmini: ${formatPrice(perVisit)} TL<br>
-    Haftalık Ziyaret Sayısı: ${visitsPerWeek} x<br>
-    Haftalık Tahmini: ${formatPrice(weeklyCost)} TL<br>
-    <strong>Aylık Tahmini: ${formatPrice(monthlyCost)} TL</strong>
-  `;
+  const details = "<strong>Detaylar:</strong><br>Alan: " + m2 + " m²<br>Birim Fiyat: " + formatPrice(rate) + " TL/m²<br>Bir Ziyaret İçin Tahmini: " + formatPrice(perVisit) + " TL<br>Haftalık Ziyaret Sayısı: " + visitsPerWeek + " x<br>Haftalık Tahmini: " + formatPrice(weeklyCost) + " TL<br><strong>Aylık Tahmini: " + formatPrice(monthlyCost) + " TL</strong>";
 
   showResult("officeResult", monthlyCost, details);
 }
 
-// İNŞAAT SONRASI
 function calcReno() {
   let m2 = parseInt(document.getElementById("rm2").value) || 0;
   let rate = parseInt(document.getElementById("level").value);
@@ -720,17 +655,12 @@ function calcReno() {
   let total = basePrice + glass + grout + kitchen + window;
   
   let extras = [];
-  if (glass > 0) extras.push(`Cam Film: ${formatPrice(glass)} TL`);
-  if (grout > 0) extras.push(`Derz Temizliği: ${formatPrice(grout)} TL`);
-  if (kitchen > 0) extras.push(`Mutfak Detayı: ${formatPrice(kitchen)} TL`);
-  if (window > 0) extras.push(`Pencere Temizliği: ${formatPrice(window)} TL`);
+  if (glass > 0) extras.push("Cam Film: " + formatPrice(glass) + " TL");
+  if (grout > 0) extras.push("Derz Temizliği: " + formatPrice(grout) + " TL");
+  if (kitchen > 0) extras.push("Mutfak Detayı: " + formatPrice(kitchen) + " TL");
+  if (window > 0) extras.push("Pencere Temizliği: " + formatPrice(window) + " TL");
   
-  let details = `
-    <strong>Detaylar:</strong><br>
-    Taban (${m2}m² × ${formatPrice(rate)} TL): ${formatPrice(basePrice)} TL<br>
-    ${extras.length > 0 ? extras.join("<br>") + "<br>" : ""}
-    <strong>Toplam: ${formatPrice(total)} TL</strong>
-  `;
+  let details = "<strong>Detaylar:</strong><br>Taban (" + m2 + "m² × " + formatPrice(rate) + " TL): " + formatPrice(basePrice) + " TL<br>" + (extras.length > 0 ? extras.join("<br>") + "<br>" : "") + "<strong>Toplam: " + formatPrice(total) + " TL</strong>";
   
   showResult("renoResult", total, details);
 }
